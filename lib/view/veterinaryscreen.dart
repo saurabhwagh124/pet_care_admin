@@ -1,86 +1,112 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pet_care_admin/widget/assignvet.dart';
+
 import '../controller/vet_controller.dart';
 import '../widget/add_editvet.dart';
-import '../widget/assignvet.dart';
 
-class Veterinaryscreen extends StatelessWidget {
+class Veterinaryscreen extends StatefulWidget {
+  @override
+  State<Veterinaryscreen> createState() => _VeterinaryscreenState();
+}
+
+class _VeterinaryscreenState extends State<Veterinaryscreen> {
   final VetController vetController = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Get.back();
-            },
-          ),
-          title: Text('Veterinarians List')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            Obx(() {
-              if (vetController.vets.isEmpty) {
-                return Center(child: Text('No veterinarians added.'));
-              }
+        title: Text('Veterinarian List'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Get.back(), // Navigate back to the previous screen
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Obx(() {
+              final vets = vetController.vets;
 
-              return Expanded(
-                child: ListView.builder(
-                  itemCount: vetController.vets.length,
+              if (vets.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('No veterinarians available.'),
+                      SizedBox(height: 16),
+                      // ElevatedButton(
+                      //   onPressed: () => Get.to(() => AddVetScreen()),
+                      //   child: Text('Add Veterinarian'),
+                      // ),
+                    ],
+                  ),
+                );
+              } else
+                return ListView.builder(
+                  itemCount: vets.length,
                   itemBuilder: (context, index) {
-                    final vet = vetController.vets[index];
-                    return ListTile(
-                      title: Text(vet.name),
-                      subtitle: Text(
-                          'Clinic: ${vet.clinicName}\nQualification: ${vet.highestQualification}'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Edit button to AddVetScreen for editing
-                          IconButton(
-                            icon: Icon(Icons.edit),
+                    final vet = vets[index];
+                    return Card(
+                      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      child: ListTile(
+                        title: Text("Name: ${vet.name}"),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Email: ${vet.email}'),
+                            Text('Specialization: ${vet.specialization}'),
+                            Text('Experience: ${vet.experienceYears} years'),
+                            Text('Clinic: ${vet.clinicName}'),
+                            Text('Start Day: ${vet.startDay}'),
+                            Text('End Day: ${vet.endDay}'),
+                            Text('Start Time: ${vet.startTime}'),
+                            Text('Close Time: ${vet.closeTime}'),
+                          ],
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                             ElevatedButton(
                             onPressed: () {
-                              Get.to(() =>
-                                  AddVetScreen(vetName: vet.name)); // Edit vet
+                              // Pass vet details to AssignVetScreen
+                              Get.to(() => AssignVetScreen(), arguments: vet);
                             },
+                            child: Text('Assign Appointment'),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.schedule),
-                            onPressed: () {
-                              Get.to(() => AssignVetScreen());
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              vetController.deleteVet(vet);
-                            },
-                          ),
-                        ],
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                vetController.deleteVet(vet); // Delete vet
+                              },
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          Get.to(() => AddVetScreen(vet: vet)); // Edit vet
+                        },
                       ),
                     );
                   },
-                ),
-              );
+                );
             }),
-            SizedBox(
-              height: 15,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Get.to(() => AddVetScreen());
-              },
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () => Get.to(() => AddVetScreen()),
               child: Text('Add Veterinarian'),
             ),
-            SizedBox(
-              height: 15,
-            ),
-          ],
-        ),
+          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(16.0),
+          //   child: ElevatedButton(
+          //     onPressed: () => Get.to(() => AssignVetScreen(),),
+          //     child: Text('Assign Veterinarian'),
+          //   ),
+          // ),
+        ],
       ),
     );
   }
